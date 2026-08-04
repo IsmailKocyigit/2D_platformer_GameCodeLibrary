@@ -5,12 +5,10 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     public Rigidbody2D rb;
-    
     bool isFacingRight = true;
-
     public Animator animator;
-
     public ParticleSystem smokeFX;
+    BoxCollider2D playerCollider;
 
     [Header("Movement")]
     public float moveSpeed = 5f;
@@ -34,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
     public Vector2 groundCheckSize = new Vector2(0.5f, 0.05f);
     public LayerMask groundLayer;
     public bool isGrounded;
+    bool isOnPlatform;
 
     [Header("Gravity")]
     public float baseGravity = 2f;
@@ -59,6 +58,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         trailRenderer = GetComponent<TrailRenderer>();
+        playerCollider = GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
@@ -221,6 +221,37 @@ public class PlayerMovement : MonoBehaviour
 
             // wall jump lasts "wallJumpTime" and you can jump again only after this time
             Invoke(nameof(CancelWallJump), wallJumpTime + 0.1f);
+        }
+    }
+
+    public void Drop(InputAction.CallbackContext context)
+    {
+        if (context.performed && isGrounded && isOnPlatform && playerCollider.enabled)
+        {
+            StartCoroutine(DisablePlayerCollider(0.5f));
+        }
+    }
+
+    private IEnumerator DisablePlayerCollider(float disableTime)
+    {
+        playerCollider.enabled = false;
+        yield return new WaitForSeconds(disableTime);
+        playerCollider.enabled = true;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            isOnPlatform = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Platform"))
+        {
+            isOnPlatform = false;
         }
     }
 
