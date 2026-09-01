@@ -27,11 +27,18 @@ public class PlayerHealth : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // this "Enemy" class is the Emeny script 
+        // this isto get the Eneny script from whatever the object this script is atteched to, collided with 
         Enemy enemy = collision.GetComponent<Enemy>();
         if (enemy) // if enemy exists
         {
             TakeDamage(enemy.damage);
+        }
+
+        // this is to get the "Trap" script from whatever the object this script is atteched to, collided with
+        Trap trap = collision.GetComponent<Trap>();
+        if (trap && trap.damage > 0)
+        {
+            TakeDamage(trap.damage);
         }
     }
 
